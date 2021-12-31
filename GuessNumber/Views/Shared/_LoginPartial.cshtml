@@ -4,17 +4,22 @@
 @inject SignInManager<GuessNumberUser> SignInManager
 @inject UserManager<GuessNumberUser> UserManager
 
-<ul class="navbar-nav">
-    @if (SignInManager.IsSignedIn(User))
+<div class="row p-10 bg">
+     @if (SignInManager.IsSignedIn(User))
     {
-        <li class="nav-item">
-            <a id="manage" class="nav-link text-dark" asp-area="Identity" asp-page="/Account/Manage/Index" title="Manage">Hello @UserManager.GetUserName(User)!</a>
-        </li>
-        <li class="nav-item">
+        <div class="col-6 ">
+           
+        </div>
+      
+        <div class="col-4 text-end">
+            <h2 id="manage" class="nav-link text-dark"  title="Manage">Hello @UserManager.GetUserName(User)</h2>
+        </div>
+        <div class="col-2 text-end text-danger font-weight-bold">
             <form id="logoutForm" class="form-inline" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })">
-                <button id="logout" type="submit" class="nav-link btn btn-link text-dark">Logout</button>
+                <button id="logout" type="submit" class="nav-link btn btn-link btn-primary  font-weight-bold">Logout</button>
             </form>
-        </li>
+        </div>
     }
+</div>
 
-</ul>
+

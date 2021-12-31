@@ -2,15 +2,19 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using GuessNumber.Data;
 using GuessNumber.Areas.Identity.Data;
+using GuessNumber.Service;
 
 var builder = WebApplication.CreateBuilder(args);
-var connectionString = builder.Configuration.GetConnectionString("AuthDbContextConnection");builder.Services.AddDbContext<AuthDbContext>(options =>
+var connectionString = builder.Configuration.GetConnectionString("AuthDbContextConnection");
+builder.Services.AddDbContext<AuthDbContext>(options =>
     options.UseSqlServer(connectionString));builder.Services.AddDefaultIdentity<GuessNumberUser>(options =>
     {
         options.SignIn.RequireConfirmedAccount = false;
         options.Password.RequireUppercase = false;
         options.Password.RequireLowercase = false;
     }).AddEntityFrameworkStores<AuthDbContext>();
+
+builder.Services.AddScoped<IUserService, UserService>();
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 builder.Services.AddRazorPages();
