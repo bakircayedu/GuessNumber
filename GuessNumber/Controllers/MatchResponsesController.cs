@@ -29,22 +29,22 @@ namespace GuessNumber.Controllers
         }
 
         // GET: MatchResponses
-        public  IActionResult Index()
+        public  async Task<IActionResult> Index()
         {
-            WaitUntilOpponentFound();
-            return View();
+            await  WaitUntilOpponentFound();
+            return RedirectToAction(nameof(GamePlayMovesController.ChooseNumber),"GamePlayMoves");
         }
-        private async void WaitUntilOpponentFound()
+        private async Task WaitUntilOpponentFound()
         {
             string playerId = userService.GetUserId();
             bool isFound = false;
             MatchResponse response = null;
 
-            //var contextOptions = new DbContextOptionsBuilder<AuthDbContext>()
-            //     .UseSqlServer(@"Server=DESKTOP-JKA3N2L;Database=GuessNumber")
-            //     .Options;
+            var contextOptions = new DbContextOptionsBuilder<AuthDbContext>()
+                 .UseSqlServer(@"Server=DESKTOP-JKA3N2L;Database=GuessNumber")
+                 .Options;
 
-            //using var context = new AuthDbContext(contextOptions);
+            using var context = new AuthDbContext(contextOptions);
 
 
 
@@ -52,7 +52,7 @@ namespace GuessNumber.Controllers
             while (!isFound)
             {
                 await Task.Delay(1000);
-                response = await _context.MatchResponse.FirstOrDefaultAsync(f => f.Player1 == playerId || f.Player2 == playerId);
+                response = await context.MatchResponse.FirstOrDefaultAsync(f => f.Player1 == playerId || f.Player2 == playerId);
                 if (response == null)
                     continue;
                 isFound = true;
@@ -61,16 +61,15 @@ namespace GuessNumber.Controllers
             MatchResponseViewModel vm = new MatchResponseViewModel()
             {
                 Id = response.Id,
-                Player1 = response.Player1,
-                Player2 = response.Player2,
+                OpponentId = response.Player1 != playerId ? response.Player1 : response.Player2,
                 PlayerQuee = response.Player1 == playerId ? "Player1" : "Player2",
                 RequestTime = response.RequestTime,
                 ResponseTime = DateTime.Now
             };
 
             var s = Newtonsoft.Json.JsonConvert.SerializeObject(vm);
-            TempData["newuser"] = s;
-            RedirectToAction(nameof(MatchResponsesController.Index));
+            TempData["newGame"] = s;
+          
         }
 
 

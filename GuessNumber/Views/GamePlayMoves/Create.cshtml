@@ -1,49 +1,142 @@
-﻿@model GuessNumber.Models.GamePlayMove
+﻿@model GuessNumber.ViewModels.GamePlayMoveViewModel
 
 @{
-    ViewData["Title"] = "Create";
-    Layout = "~/Views/Shared/_Layout.cshtml";
+	ViewData["Title"] = "Create";
+	Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<h1>Create</h1>
 
-<h4>GamePlayMove</h4>
-<hr />
 <div class="row">
-    <div class="col-md-4">
-        <form asp-action="Create">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <div class="form-group">
-                <label asp-for="MatchId" class="control-label"></label>
-                <input asp-for="MatchId" class="form-control" />
-                <span asp-validation-for="MatchId" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="PlayerId" class="control-label"></label>
-                <input asp-for="PlayerId" class="form-control" />
-                <span asp-validation-for="PlayerId" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="PlayerMove" class="control-label"></label>
-                <input asp-for="PlayerMove" class="form-control" />
-                <span asp-validation-for="PlayerMove" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="TurnCount" class="control-label"></label>
-                <input asp-for="TurnCount" class="form-control" />
-                <span asp-validation-for="TurnCount" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <input type="submit" value="Create" class="btn btn-primary" />
-            </div>
-        </form>
-    </div>
+	<br />
+	<div class="col-md-3 m-1">
+		<h4 class="text-danger">Sayıyı Buraya Giriniz</h4>
+	</div>
+	<div class="col-md-2 border-primary">
+		<form asp-action="Create">
+			<div class="form-group has-warning">
+				<input asp-for="@Model.PlayerNextGuessNumber" class="form-control" id="numberInput" onchange="CheckUserInput($(" #numberInput").value)" />
+				<span asp-validation-for="@Model.PlayerNextGuessNumber" class="text-danger"></span>
+			</div>
+			<br />
+			<div class="form-group padding-left">
+				<input type="submit" value="Guess Number" class="btn btn-primary" style="display:none" id="submitBtn" />
+			</div>
+		</form>
+	</div>
+	<div class="col-md-3"></div>
+	<div class="col-md-2">
+		<h1 class="text-danger" id="timerText"></h1>
+	</div>
 </div>
 
-<div>
-    <a asp-action="Index">Back to List</a>
-</div>
+<br />
+
+
+
+
+
+@{
+	<table class="table">
+
+		<thead>
+			<tr>
+				<th>@Html.DisplayFor(model => model.OpponentMoves.First().GuessNumber)</th>
+				<th></th>
+				<th>VS</th>
+				<th></th>
+				<th>@Html.DisplayFor(model => model.PlayerMoves.First().GuessNumber)</th>
+			</tr>
+		</thead>
+
+		<tbody>
+
+			@for (var i = 1; i < Model.PlayerMoves.Count; i++)
+			{
+				<tr>
+					<td>@Model.PlayerMoves[i].Number ==>  @Model.PlayerMoves[i].Hint</td>
+					<td></td>
+					<td></td>
+					<td></td>
+					<td>@Model.OpponentMoves[i].Number ==> @Model.OpponentMoves[i].Hint</td>
+				</tr>
+			}
+		</tbody>
+	</table>
+}
+
+
+<script>
+	$("#numberInput").keyup(function(){
+		console.log('numberInput changed');
+		var s =$("#numberInput").val();
+
+		if(s.length<3)
+			return;
+		var tempS =parseInt(s);
+
+		var sarray =  [...tempS+''];
+		var n1 = sarray[0];
+		var n2  = sarray[1];
+		var n3 =  sarray[2];
+
+		console.log('s =>{0}, n1 =>{1}, n2 =>{2}, n3=>{3}',s,n1,n2,n3);
+
+		if(n1 === n2 || n2===n3 || n3 === n1)
+		{
+			console.log('all number equal');
+			alert('Sayının Tüm Rakamları Farklı Olmalı');
+			$("#numberInput").val('');
+		}
+	 });
+	 console.log('lastSecond =>',@ViewBag.LastSecond);
+	 var timer =parseInt(@ViewBag.LastSecond / 1000) ;
+	 console.log('timer =>',timer);
+	 if(timer>15){
+		timer = 15;
+		console.log('timer',timer);
+	 }
+
+
+		var intervalId = null;
+
+		var varName = function(){
+			console.log('setInterval calisti');
+			 if(timer > 0) {
+				  timer--;
+				   $("#timerText").innerHTML = "heyyyyy";
+				   document.getElementById("timerText").innerHTML = ""+timer;
+				  /* your code goes here */
+			 }
+			 else
+			 {
+			   clearInterval(intervalId);
+			   var inputS =parseInt(  $("#numberInput").val());
+			   console.log('inputS',inputS);
+			   if(inputS<100)
+					$("#numberInput").val(100);
+
+				$("#submitBtn").click();
+			 }
+			 console.log('timer',timer);
+		};
+
+		$(document).ready(function(){
+			 intervalId = setInterval(varName, 1000);
+		});
+
+
+	// setInterval(displayBtn, timer);
+
+
+	//function displayBtn(){
+	//     $("#submitBtn").show();
+	// }
+
+</script>
+
 
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    @{
+	await Html.RenderPartialAsync("_ValidationScriptsPartial");
+}
 }

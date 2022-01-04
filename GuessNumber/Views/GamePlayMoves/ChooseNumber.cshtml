@@ -1,0 +1,52 @@
+﻿@model GuessNumber.StateModels.MoveModel
+
+
+<h1>Chose Your Number</h1>
+
+
+
+
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="ChooseNumber">
+            <div class="form-group">
+                <input asp-for="GuessNumber" class="form-control" id="numberInput" />
+                <span asp-validation-for="GuessNumber" class="text-danger"></span>
+            </div>
+            <br />
+             <div class="form-group padding-left">
+                <input type="submit" value="Create" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+  <script>
+        $("#numberInput").keyup(function(){
+            console.log('numberInput changed');
+            var s =$("#numberInput").val();
+
+            if(s.length<3)
+                return;
+            var tempS =parseInt(s);
+            var sarray =  [...tempS+''];
+            var n1 = sarray[0];
+            var n2  = sarray[1];
+            var n3 =  sarray[2];
+
+            console.log('s =>{0}, n1 =>{1}, n2 =>{2}, n3=>{3}',s,n1,n2,n3);
+
+            if(n1 === n2 || n2===n3 || n3 === n1)
+            {
+                console.log('all number equal');
+                alert('Sayının Tüm Rakamları Farklı Olmalı');
+                $("#numberInput").val('');
+                return;
+            }
+	     });
+                   
+     </script>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

@@ -96,7 +96,7 @@ namespace GuessNumber.Controllers
                 await _context.SaveChangesAsync();
                
             }
-            return RedirectToAction(nameof(MatchResponsesController.Index));
+            return RedirectToAction("Index","MatchResponses");
         }
       
         private async Task ClearBeforeMatchRequest()

@@ -8,16 +8,37 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using GuessNumber.Data;
 using GuessNumber.Models;
+using Newtonsoft.Json;
+using GuessNumber.ViewModels;
+using GuessNumber.Service;
+using GuessNumber.StateModels;
 
 namespace GuessNumber.Controllers
 {
     public class GamePlayMovesController : Controller
     {
+        #region AspCoreAttribute
         private readonly AuthDbContext _context;
+        private readonly IUserService userService;
+        #endregion
 
-        public GamePlayMovesController(AuthDbContext context)
+
+
+        #region GameStateAttributes
+        private static MatchResponseViewModel matchResponseViewModel;
+        private static Dictionary<string, List<MoveModel>> PlayersMoves;
+        #endregion
+
+        public GamePlayMovesController(AuthDbContext context, IUserService userService)
         {
             _context = context;
+            this.userService = userService;
+            PlayersMoves = new Dictionary<string, List<MoveModel>>()
+            {
+                {"Player",new List<MoveModel>() },
+                {"Opponent",new List<MoveModel>() }
+            };
+
         }
 
         // GET: GamePlayMoves
@@ -26,28 +47,65 @@ namespace GuessNumber.Controllers
             return View(await _context.GamePlayMove.ToListAsync());
         }
 
-        // GET: GamePlayMoves/Details/5
-        public async Task<IActionResult> Details(int? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
 
-            var gamePlayMove = await _context.GamePlayMove
-                .FirstOrDefaultAsync(m => m.Id == id);
-            if (gamePlayMove == null)
-            {
-                return NotFound();
-            }
-
-            return View(gamePlayMove);
-        }
 
         // GET: GamePlayMoves/Create
-        public IActionResult Create()
+        public async Task<IActionResult> Create()
         {
-            return View();
+            var gpm = await GetOpponentGuess();
+            if (gpm.Winner.Length > 0)
+            {
+                // TODO kazanma kaybetme ekranı yapılacak
+                // puanlar yazılacak
+                //db temizlenecek 
+
+                if (gpm.Winner.Equals("Player"))
+                    ViewBag.Winner = 1;
+                else if (gpm.Winner.Equals("Opponent"))
+                    ViewBag.Winner = 0;
+                else
+                    ViewBag.Winner = 2;
+                return View(gpm);
+            }
+
+            var dateTime = gpm.PlayerMoves.OrderByDescending(o => o.PlayTime).FirstOrDefault();
+
+            int lastSec = (int)((DateTime.Now.Ticks - dateTime.PlayTime.Ticks) / 1000);
+
+            ViewBag.LastSecond = lastSec;
+
+            return View(gpm);
+        }
+
+
+
+        private async Task<GamePlayMoveViewModel> GetOpponentGuess()
+        {
+            bool isFound = false;
+            GamePlayMoveViewModel gpm = new GamePlayMoveViewModel();
+            while (!isFound)
+            {
+                await Task.Delay(1000);
+
+                var opponentGpm = await _context.GamePlayMove.
+                                    Where(m => m.MatchId == matchResponseViewModel.Id &&
+                                                        m.PlayerId == matchResponseViewModel.OpponentId 
+                                                       ).OrderBy(o=>o.TurnCount).ToListAsync();
+
+                var playerGpm = await _context.GamePlayMove.
+                                    Where(m => m.MatchId == matchResponseViewModel.Id &&
+                                                        m.PlayerId == userService.GetUserId()
+                                                       ).OrderBy(o => o.TurnCount).ToListAsync();
+                if (playerGpm == null)
+                    continue;
+                isFound = true;
+
+
+                gpm.GetViewModel(playerGpm, opponentGpm);
+
+            }
+
+            return gpm;
         }
 
         // POST: GamePlayMoves/Create
@@ -55,96 +113,62 @@ namespace GuessNumber.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,MatchId,PlayerId,PlayerMove,TurnCount,MoveTime")] GamePlayMove gamePlayMove)
+        public async Task<IActionResult> Create([Bind("PlayerNextGuessNumber")] GamePlayMoveViewModel gpVm)
         {
-            if (ModelState.IsValid)
-            {
-                _context.Add(gamePlayMove);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
-            }
-            return View(gamePlayMove);
+            GamePlayMove gamePlayMove = new GamePlayMove();
+
+            gamePlayMove.PlayerId = userService.GetUserId();
+            gamePlayMove.MatchId = matchResponseViewModel.Id;
+            gamePlayMove.TurnCount = 0;
+            gamePlayMove.PlayerMove = gpVm.PlayerNextGuessNumber;
+            gamePlayMove.MoveTime = DateTime.Now; ;
+
+            _context.Add(gamePlayMove);
+            await _context.SaveChangesAsync();
+            return RedirectToAction(nameof(Create));
         }
 
-        // GET: GamePlayMoves/Edit/5
-        public async Task<IActionResult> Edit(int? id)
+
+
+        // GET: GamePlayMoves/Create
+        public IActionResult ChooseNumber()
         {
-            if (id == null)
+            if (TempData["newGame"] is string s)
             {
-                return NotFound();
+                matchResponseViewModel = JsonConvert.DeserializeObject<MatchResponseViewModel>(s);
+                if (matchResponseViewModel.Id == 0)
+                    matchResponseViewModel.Id = 100;
             }
 
-            var gamePlayMove = await _context.GamePlayMove.FindAsync(id);
-            if (gamePlayMove == null)
-            {
-                return NotFound();
-            }
-            return View(gamePlayMove);
+
+            return View();
         }
+
+
+
 
         // POST: GamePlayMoves/Edit/5
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,MatchId,PlayerId,PlayerMove,TurnCount,MoveTime")] GamePlayMove gamePlayMove)
+        public async Task<IActionResult> ChooseNumber([Bind("GuessNumber")] MoveModel moveModel)
         {
-            if (id != gamePlayMove.Id)
-            {
-                return NotFound();
-            }
+            GamePlayMove gamePlayMove = new GamePlayMove();
 
-            if (ModelState.IsValid)
-            {
-                try
-                {
-                    _context.Update(gamePlayMove);
-                    await _context.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!GamePlayMoveExists(gamePlayMove.Id))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
-                return RedirectToAction(nameof(Index));
-            }
-            return View(gamePlayMove);
-        }
+            gamePlayMove.PlayerId = userService.GetUserId();
+            gamePlayMove.MatchId = matchResponseViewModel.Id;
+            gamePlayMove.TurnCount = 0;
+            gamePlayMove.MoveTime = DateTime.Now; ;
 
-        // GET: GamePlayMoves/Delete/5
-        public async Task<IActionResult> Delete(int? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
+            gamePlayMove.PlayerMove = moveModel.GuessNumber;
 
-            var gamePlayMove = await _context.GamePlayMove
-                .FirstOrDefaultAsync(m => m.Id == id);
-            if (gamePlayMove == null)
-            {
-                return NotFound();
-            }
-
-            return View(gamePlayMove);
-        }
-
-        // POST: GamePlayMoves/Delete/5
-        [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
-        {
-            var gamePlayMove = await _context.GamePlayMove.FindAsync(id);
-            _context.GamePlayMove.Remove(gamePlayMove);
+            _context.Add(gamePlayMove);
             await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
+            return RedirectToAction(nameof(Create));
         }
+
+
 
         private bool GamePlayMoveExists(int id)
         {

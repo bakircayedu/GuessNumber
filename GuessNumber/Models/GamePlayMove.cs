@@ -15,7 +15,7 @@ namespace GuessNumber.Models
         [Range(100, 999)]
         public int PlayerMove { get; set; } = 0;
         [Required]
-        public int TurnCount { get; set; }
+        public int TurnCount { get; set; } = 0;
 
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public DateTime MoveTime { get;set; }
