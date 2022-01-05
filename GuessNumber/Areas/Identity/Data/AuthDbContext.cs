@@ -32,7 +32,9 @@ namespace GuessNumber.Data
 
         public DbSet<GuessNumber.Models.GamePlayMove> GamePlayMove { get; set; }
 
-        
+        public DbSet<GuessNumber.Models.GameResult> GameResult { get; set; }
+
+
     }
 }
 

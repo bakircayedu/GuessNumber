@@ -6,7 +6,7 @@
 }
 
 
-<div class="row">
+<div class="row" id="topRow">
 	<br />
 	<div class="col-md-3 m-1">
 		<h4 class="text-danger">Sayıyı Buraya Giriniz</h4>
@@ -14,12 +14,12 @@
 	<div class="col-md-2 border-primary">
 		<form asp-action="Create">
 			<div class="form-group has-warning">
-				<input asp-for="@Model.PlayerNextGuessNumber" class="form-control" id="numberInput" onchange="CheckUserInput($(" #numberInput").value)" />
+				<input asp-for="@Model.PlayerNextGuessNumber" class="form-control" id="numberInput"/>
 				<span asp-validation-for="@Model.PlayerNextGuessNumber" class="text-danger"></span>
 			</div>
 			<br />
 			<div class="form-group padding-left">
-				<input type="submit" value="Guess Number" class="btn btn-primary" style="display:none" id="submitBtn" />
+				<input type="submit" value="Guess Number" class="btn btn-primary" @*style="display:none" *@id="submitBtn" />
 			</div>
 		</form>
 	</div>
@@ -64,9 +64,21 @@
 	</table>
 }
 
+<div style="display:none">
+	<a asp-action="GameResult" id="gameResult"></a>
+	@*<button asp-action="GameResult" id="gameResult" ></button>*@
+</div>
+
 
 <script>
-	$("#numberInput").keyup(function(){
+
+	if(@Model.GameResult.Length>0){
+		$("#topRow").hide();
+		$("#gameResult").click();
+		
+	}
+	else{
+		$("#numberInput").keyup(function(){
 		console.log('numberInput changed');
 		var s =$("#numberInput").val();
 
@@ -91,7 +103,8 @@
 	 console.log('lastSecond =>',@ViewBag.LastSecond);
 	 var timer =parseInt(@ViewBag.LastSecond / 1000) ;
 	 console.log('timer =>',timer);
-	 if(timer>15){
+	 if(timer>15)
+	 {
 		timer = 15;
 		console.log('timer',timer);
 	 }
@@ -103,7 +116,6 @@
 			console.log('setInterval calisti');
 			 if(timer > 0) {
 				  timer--;
-				   $("#timerText").innerHTML = "heyyyyy";
 				   document.getElementById("timerText").innerHTML = ""+timer;
 				  /* your code goes here */
 			 }
@@ -115,7 +127,7 @@
 			   if(inputS<100)
 					$("#numberInput").val(100);
 
-				$("#submitBtn").click();
+				//$("#submitBtn").click();
 			 }
 			 console.log('timer',timer);
 		};
@@ -131,6 +143,9 @@
 	//function displayBtn(){
 	//     $("#submitBtn").show();
 	// }
+	}
+
+	
 
 </script>
 

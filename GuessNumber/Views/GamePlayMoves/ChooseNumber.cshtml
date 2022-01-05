@@ -7,7 +7,10 @@
 
 
 <div class="row">
-    <div class="col-md-4">
+    <div class="col-md-3 m-1">
+		<h4 class="text-danger">Sayıyı Buraya Giriniz</h4>
+	</div>
+    <div class="col-md-2">
         <form asp-action="ChooseNumber">
             <div class="form-group">
                 <input asp-for="GuessNumber" class="form-control" id="numberInput" />
@@ -15,10 +18,14 @@
             </div>
             <br />
              <div class="form-group padding-left">
-                <input type="submit" value="Create" class="btn btn-primary" />
+                <input type="submit" value="Create" class="btn btn-primary" @*style="display:none"*@ id="submitBtn"/>
             </div>
         </form>
     </div>
+    <div class="col-md-3"></div>
+	<div class="col-md-2">
+		<h1 class="text-danger" id="timerText"></h1>
+	</div>
 </div>
 
   <script>
@@ -44,6 +51,42 @@
                 return;
             }
 	     });
+
+
+         var timer =parseInt(@ViewBag.LastSecond / 1000) ;
+	     console.log('timer =>',timer);
+	     if(timer>15)
+         {
+		    timer = 15;
+		    console.log('timer',timer);
+	     }
+
+         var intervalId = null;
+
+		var varName = function(){
+			console.log('setInterval calisti');
+			 if(timer > 0) {
+				  timer--;
+				   document.getElementById("timerText").innerHTML = ""+timer;
+				  /* your code goes here */
+			 }
+			 else
+			 {
+			   clearInterval(intervalId);
+			   var inputS =parseInt(  $("#numberInput").val());
+			   console.log('inputS',inputS);
+			   if(inputS<100)
+					$("#numberInput").val(100);
+
+				//$("#submitBtn").click();
+			 }
+			 console.log('timer',timer);
+		};
+
+		$(document).ready(function(){
+			 intervalId = setInterval(varName, 1000);
+		});
+
                    
      </script>
 

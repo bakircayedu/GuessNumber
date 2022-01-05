@@ -1,0 +1,22 @@
+﻿@model GuessNumber.ViewModels.GameResultViewModel
+
+
+@{
+	ViewData["Title"] = "Create";
+	Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="" id="div">
+	@Model.GameResult
+</div>
+
+
+<script>
+
+	var div = $("#div");  
+	 div.animate({left: '500px'}, "slow");
+	div.animate({height: '300px', opacity: '0.4'}, "slow");
+	div.animate({width: '300px', opacity: '0.8'}, "slow");
+	div.animate({fontSize: '5em'}, "slow");
+
+</script>

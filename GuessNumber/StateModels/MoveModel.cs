@@ -25,7 +25,7 @@ namespace GuessNumber.StateModels
 
             // 1. sayı eşit olma durumu
             if (Number == GuessNumber)
-                tempHint = "Win";
+                tempHint = "Correct";
             else if (Number == 0)
             {
                 tempHint = "Pass";

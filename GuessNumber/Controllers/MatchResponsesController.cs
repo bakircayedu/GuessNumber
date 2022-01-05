@@ -50,7 +50,7 @@ namespace GuessNumber.Controllers
 
 
             while (!isFound)
-            {
+            {       //&&(f => f.Player1 == playerId || f.Player2 == playerId)
                 await Task.Delay(1000);
                 response = await context.MatchResponse.FirstOrDefaultAsync(f => f.Player1 == playerId || f.Player2 == playerId);
                 if (response == null)
@@ -61,14 +61,14 @@ namespace GuessNumber.Controllers
             MatchResponseViewModel vm = new MatchResponseViewModel()
             {
                 Id = response.Id,
-                OpponentId = response.Player1 != playerId ? response.Player1 : response.Player2,
+                OpponentId = response.Player1 == playerId ? response.Player2 : response.Player1,
                 PlayerQuee = response.Player1 == playerId ? "Player1" : "Player2",
                 RequestTime = response.RequestTime,
                 ResponseTime = DateTime.Now
             };
 
             var s = Newtonsoft.Json.JsonConvert.SerializeObject(vm);
-            TempData["newGame"] = s;
+            TempData[$"{playerId}_newGame"] = s;
           
         }
 

@@ -12,7 +12,5 @@ namespace GuessNumber.Models
 
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public DateTime RequestTime { get; set; }
-
-      
     }
 }

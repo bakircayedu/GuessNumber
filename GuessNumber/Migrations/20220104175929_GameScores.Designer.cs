@@ -4,6 +4,7 @@ using GuessNumber.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,10 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace GuessNumber.Migrations
 {
     [DbContext(typeof(AuthDbContext))]
-    partial class AuthDbContextModelSnapshot : ModelSnapshot
+    [Migration("20220104175929_GameScores")]
+    partial class GameScores
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -148,10 +150,6 @@ namespace GuessNumber.Migrations
 
                     b.Property<int>("MathcResponseId")
                         .HasColumnType("int");
-
-                    b.Property<DateTime>("Time")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime2");
 
                     b.HasKey("Id");
 

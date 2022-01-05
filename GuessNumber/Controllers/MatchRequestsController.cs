@@ -102,10 +102,17 @@ namespace GuessNumber.Controllers
         private async Task ClearBeforeMatchRequest()
         {
             var beforeRequest = _context.MatchRequest.Where(r => r.PlayerId == userService.GetUserId());
+            var beforeResponse = _context.MatchResponse.Where(r => r.Player1 == userService.GetUserId() || r.Player2 == userService.GetUserId());
 
             if (beforeRequest != null)
             {
                 _context.MatchRequest.RemoveRange(beforeRequest);
+                await _context.SaveChangesAsync();
+            }
+
+            if (beforeResponse != null)
+            {
+                _context.MatchResponse.RemoveRange(beforeResponse);
                 await _context.SaveChangesAsync();
             }
 
