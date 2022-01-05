@@ -25,13 +25,31 @@ namespace GuessNumber.Controllers
 
         private async Task<List<LeaderBoardViewModel>> GetTopScores()
         {
-
             var topUsers = await _context.GameResult
                 .Include(u => u.Player)
                 .GroupBy(g => g.GuessNumberUserId)
-                .Select(a => new {TotalScore = a.Sum(b=> b.GamePoint),Name =a.Select(s=>s.Player.FirstName).FirstOrDefault()})
-                .OrderByDescending(a=>a.TotalScore)
-                .AsNoTracking().ToListAsync();
+                .Select(a => new { TotalScore = a.Sum(b => b.GamePoint), Name = a.Select(s => s.Player.FirstName).FirstOrDefault() })
+                .OrderByDescending(a => a.TotalScore)
+                .AsNoTracking()
+                .Take(10)
+                .ToListAsync();
+
+            string playerId = userService.GetUserId();
+            var userScore = await _context.GameResult
+                 .Include(u => u.Player)
+                 .Where(w => w.GuessNumberUserId == playerId)
+                 .GroupBy(g => g.GuessNumberUserId)
+                 .Select(a => new { TotalScore = a.Sum(b => b.GamePoint), Name = a.Select(s => s.Player.FirstName).FirstOrDefault() })
+                 .OrderByDescending(a => a.TotalScore)
+                 .AsNoTracking()
+                 .Take(1)
+                 .ToListAsync();
+
+            foreach (var item in userScore)
+            {
+                ViewBag.Name = item.Name;
+                ViewBag.TotalScore = item.TotalScore;
+            }
 
 
             List<LeaderBoardViewModel> vm = new List<LeaderBoardViewModel>();
@@ -39,7 +57,7 @@ namespace GuessNumber.Controllers
             foreach (var item in topUsers)
             {
                 LeaderBoardViewModel lm = new LeaderBoardViewModel();
-                lm.PlayerName = item.Name?? "Unknown";
+                lm.PlayerName = item.Name ?? "Unknown";
                 lm.TotalPoint = item.TotalScore;
                 vm.Add(lm);
             }
