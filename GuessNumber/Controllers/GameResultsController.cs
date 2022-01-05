@@ -27,7 +27,7 @@ namespace GuessNumber.Controllers
         {
             var topUsers = await _context.GameResult
                 .Include(u => u.Player)
-                .GroupBy(g => g.GuessNumberUserId)
+                .GroupBy(g => g.PlayerId)
                 .Select(a => new { TotalScore = a.Sum(b => b.GamePoint), Name = a.Select(s => s.Player.FirstName).FirstOrDefault() })
                 .OrderByDescending(a => a.TotalScore)
                 .AsNoTracking()
@@ -37,8 +37,8 @@ namespace GuessNumber.Controllers
             string playerId = userService.GetUserId();
             var userScore = await _context.GameResult
                  .Include(u => u.Player)
-                 .Where(w => w.GuessNumberUserId == playerId)
-                 .GroupBy(g => g.GuessNumberUserId)
+                 .Where(w => w.PlayerId == playerId)
+                 .GroupBy(g => g.PlayerId)
                  .Select(a => new { TotalScore = a.Sum(b => b.GamePoint), Name = a.Select(s => s.Player.FirstName).FirstOrDefault() })
                  .OrderByDescending(a => a.TotalScore)
                  .AsNoTracking()

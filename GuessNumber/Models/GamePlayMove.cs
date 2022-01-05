@@ -9,7 +9,8 @@ namespace GuessNumber.Models
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }
         [Required]
-        public int MatchResponseId { get; set; }
+        [StringLength(450)]
+        public string GamePlayId { get; set; }
         [Required]
         [StringLength(450)]
         public string? PlayerId { get; set; }
@@ -21,7 +22,7 @@ namespace GuessNumber.Models
 
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public DateTime MoveTime { get;set; }
-        public MatchResponse? MatchResponse { get; set; }
+        
         public GuessNumberUser? Player { get; set; }
 
     }

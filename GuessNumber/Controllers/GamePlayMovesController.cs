@@ -52,7 +52,7 @@ namespace GuessNumber.Controllers
         {
             string playerId = userService.GetUserId();
 
-            var gr = await _context.GameResult.Where(g => g.GuessNumberUserId == playerId)
+            var gr = await _context.GameResult.Where(g => g.PlayerId == playerId)
                   .OrderByDescending(O => O.Time).FirstOrDefaultAsync();
             string r = "";
             if (gr != null)
@@ -85,8 +85,8 @@ namespace GuessNumber.Controllers
 
                 GameResult gr = new GameResult();
                 MatchResponseViewModel vm = await GetMatchResponseViewModel();
-                gr.MatchResponseId = vm.Id;
-                gr.GuessNumberUserId = userService.GetUserId();
+                gr.GamePlayId = vm.Id;
+                gr.PlayerId = userService.GetUserId();
                 gr.Time = DateTime.Now;
 
                 if (gpm.Winner.Equals("Player"))
@@ -127,7 +127,7 @@ namespace GuessNumber.Controllers
         private async Task ClearDbAfterMatch()
         {
             MatchResponseViewModel vm = await GetMatchResponseViewModel();
-            _context.GamePlayMove.RemoveRange(_context.GamePlayMove.Where(m => m.MatchResponseId == vm.Id &&
+            _context.GamePlayMove.RemoveRange(_context.GamePlayMove.Where(m => m.GamePlayId == vm.Id &&
                                                        m.PlayerId == userService.GetUserId()));
 
             await _context.SaveChangesAsync();
@@ -152,13 +152,13 @@ namespace GuessNumber.Controllers
                 await Task.Delay(1000);
 
                 var opponentGpm = await _context.GamePlayMove.
-                                    Where(m => m.MatchResponseId == vm.Id &&
+                                    Where(m => m.GamePlayId == vm.Id &&
                                                         m.PlayerId == vm.OpponentId
                                                        ).OrderBy(o => o.TurnCount).ToListAsync();
 
                 var playerGpm = await _context.GamePlayMove.
-                                    Where(m => m.MatchResponseId == vm.Id &&
-                                                        m.PlayerId == userService.GetUserId()
+                                    Where(m => m.GamePlayId == vm.Id &&
+                                                        m.PlayerId == userId
                                                        ).OrderBy(o => o.TurnCount).ToListAsync();
                 if (playerGpm == null || opponentGpm == null || playerGpm.Count != opponentGpm.Count || playerGpm.Count < 1 || opponentGpm.Count < 1)
                     continue;
@@ -181,7 +181,7 @@ namespace GuessNumber.Controllers
             MatchResponseViewModel vm = await GetMatchResponseViewModel();
 
             gamePlayMove.PlayerId = userService.GetUserId();
-            gamePlayMove.MatchResponseId = vm.Id;
+            gamePlayMove.GamePlayId = vm.Id;
             gamePlayMove.TurnCount = 0;
             gamePlayMove.PlayerMove = gpVm.PlayerNextGuessNumber;
             gamePlayMove.MoveTime = DateTime.Now; ;
@@ -220,8 +220,8 @@ namespace GuessNumber.Controllers
             GamePlayMove gamePlayMove = new GamePlayMove();
             MatchResponseViewModel vm = await GetMatchResponseViewModel();
 
-            gamePlayMove.PlayerId = userService.GetUserId();
-            gamePlayMove.MatchResponseId = vm.Id;
+            gamePlayMove.PlayerId = playerId;
+            gamePlayMove.GamePlayId = vm.Id;
             gamePlayMove.TurnCount = 0;
             gamePlayMove.MoveTime = DateTime.Now; ;
 
@@ -243,24 +243,33 @@ namespace GuessNumber.Controllers
         {
             string playerId = userService.GetUserId();
             bool isFound = false;
-            MatchResponse response = null;
+            MatchResponse playerResponse = null;
+            MatchResponse opponentResponse = null;
 
 
             while (!isFound)
-            {
+            {       //&&(f => f.Player1 == playerId || f.Player2 == playerId)
                 await Task.Delay(1000);
-                response = await _context.MatchResponse.FirstOrDefaultAsync(f => f.Player1Id == playerId || f.Player2Id == playerId);
-                if (response == null)
+                playerResponse = await _context.MatchResponse
+                    .FirstOrDefaultAsync(f => f.PlayerId == playerId);
+                if (playerResponse == null)
                     continue;
+
+                opponentResponse = await _context.MatchResponse
+                   .FirstOrDefaultAsync(f => f.GamePlayId == playerResponse.GamePlayId && f.PlayerId != playerId);
+                if (playerResponse == null)
+                    continue;
+
+
                 isFound = true;
             }
 
             MatchResponseViewModel vm = new MatchResponseViewModel()
             {
-                Id = response.Id,
-                OpponentId = response.Player1Id == playerId ? response.Player2Id : response.Player1Id,
-                PlayerQuee = response.Player1Id == playerId ? "Player1" : "Player2",
-                RequestTime = response.RequestTime,
+                Id = playerResponse.GamePlayId,
+                OpponentId = opponentResponse.PlayerId,
+                PlayerQuee = "",
+                RequestTime = playerResponse.RequestTime,
                 ResponseTime = DateTime.Now
             };
             return vm;

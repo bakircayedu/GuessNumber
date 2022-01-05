@@ -9,13 +9,14 @@ namespace GuessNumber.Models
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }
         [StringLength(450)]
-        public string? Player1Id { get; set; }
-        [StringLength(450)]
-        public string? Player2Id { get; set; }
+        [Required]
+        public string? PlayerId { get; set; }
 
+        [Required]
+        [StringLength(450)]
+        public string GamePlayId { get; set; }
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public DateTime RequestTime { get; set; }
-        //public GuessNumberUser? Player1 { get; set; }
-        //public GuessNumberUser? Player2 { get; set; }
+        public GuessNumberUser? Player { get; set; }
     }
 }

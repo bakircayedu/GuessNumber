@@ -38,7 +38,8 @@ namespace GuessNumber.Controllers
         {
             string playerId = userService.GetUserId();
             bool isFound = false;
-            MatchResponse response = null;
+            MatchResponse playerResponse = null;
+            MatchResponse opponentResponse = null;
 
             var contextOptions = new DbContextOptionsBuilder<AuthDbContext>()
                  .UseSqlServer(@"Server=DESKTOP-JKA3N2L;Database=GuessNumber")
@@ -52,24 +53,19 @@ namespace GuessNumber.Controllers
             while (!isFound)
             {       //&&(f => f.Player1 == playerId || f.Player2 == playerId)
                 await Task.Delay(1000);
-                response = await context.MatchResponse.FirstOrDefaultAsync(f => f.Player1Id == playerId || f.Player2Id == playerId);
-                if (response == null)
+                playerResponse = await context.MatchResponse
+                    .FirstOrDefaultAsync(f => f.PlayerId == playerId);
+                if (playerResponse == null)
                     continue;
+
+                opponentResponse = await context.MatchResponse
+                   .FirstOrDefaultAsync(f => f.GamePlayId == playerResponse.GamePlayId);
+                if (playerResponse == null)
+                    continue;
+
+
                 isFound = true;
             }
-
-            MatchResponseViewModel vm = new MatchResponseViewModel()
-            {
-                Id = response.Id,
-                OpponentId = response.Player1Id == playerId ? response.Player2Id : response.Player1Id,
-                PlayerQuee = response.Player1Id == playerId ? "Player1" : "Player2",
-                RequestTime = response.RequestTime,
-                ResponseTime = DateTime.Now
-            };
-
-            var s = Newtonsoft.Json.JsonConvert.SerializeObject(vm);
-            TempData[$"{playerId}_newGame"] = s;
-          
         }
 
 

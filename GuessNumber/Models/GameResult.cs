@@ -10,12 +10,12 @@ namespace GuessNumber.Models
         public int Id { get; set; }
         [Required]
         [StringLength(450)]
-        public string? GuessNumberUserId { get; set; }
+        public string? PlayerId { get; set; }
         [Required]
-        public int MatchResponseId { get; set; }
+        [StringLength(450)]
+        public string GamePlayId { get; set; }
         [Range(0, 2)]
         public int GamePoint { get; set; }
-        public MatchResponse? MatchResponse { get; set; }
         public GuessNumberUser? Player { get; set; }
 
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
