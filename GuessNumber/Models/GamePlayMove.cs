@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using GuessNumber.Areas.Identity.Data;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace GuessNumber.Models
@@ -8,7 +9,7 @@ namespace GuessNumber.Models
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }
         [Required]
-        public int MatchId { get; set; }
+        public int MatchResponseId { get; set; }
         [Required]
         public string? PlayerId { get; set; }
         [Required]
@@ -19,9 +20,8 @@ namespace GuessNumber.Models
 
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public DateTime MoveTime { get;set; }
-
-
         public MatchResponse? MatchResponse { get; set; }
-        
+        public GuessNumberUser? Player { get; set; }
+
     }
 }

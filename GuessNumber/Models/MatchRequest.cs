@@ -13,7 +13,6 @@ namespace GuessNumber.Models
 
         public int? IsPlayerRequestHandled { get; set; } = 0;
 
-      
-
+        public GuessNumberUser? Player { get; set; }
     }
 }

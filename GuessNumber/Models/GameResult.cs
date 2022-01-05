@@ -11,7 +11,7 @@ namespace GuessNumber.Models
         [Required]
         public string? GuessNumberUserId { get; set; }
         [Required]
-        public int MathcResponseId { get; set; }
+        public int MatchResponseId { get; set; }
         [Range(0, 2)]
         public int GamePoint { get; set; }
         public MatchResponse? MatchResponse { get; set; }

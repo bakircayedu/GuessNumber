@@ -7,10 +7,12 @@ namespace GuessNumber.Models
     {
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }
-        public string? Player1 { get; set; }
-        public string? Player2 { get; set; }
+        public string? Player1Id { get; set; }
+        public string? Player2Id { get; set; }
 
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public DateTime RequestTime { get; set; }
+        public GuessNumberUser? Player1 { get; set; }
+        public GuessNumberUser? Player2 { get; set; }
     }
 }

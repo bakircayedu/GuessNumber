@@ -52,7 +52,7 @@ namespace GuessNumber.Controllers
             while (!isFound)
             {       //&&(f => f.Player1 == playerId || f.Player2 == playerId)
                 await Task.Delay(1000);
-                response = await context.MatchResponse.FirstOrDefaultAsync(f => f.Player1 == playerId || f.Player2 == playerId);
+                response = await context.MatchResponse.FirstOrDefaultAsync(f => f.Player1Id == playerId || f.Player2Id == playerId);
                 if (response == null)
                     continue;
                 isFound = true;
@@ -61,8 +61,8 @@ namespace GuessNumber.Controllers
             MatchResponseViewModel vm = new MatchResponseViewModel()
             {
                 Id = response.Id,
-                OpponentId = response.Player1 == playerId ? response.Player2 : response.Player1,
-                PlayerQuee = response.Player1 == playerId ? "Player1" : "Player2",
+                OpponentId = response.Player1Id == playerId ? response.Player2Id : response.Player1Id,
+                PlayerQuee = response.Player1Id == playerId ? "Player1" : "Player2",
                 RequestTime = response.RequestTime,
                 ResponseTime = DateTime.Now
             };
