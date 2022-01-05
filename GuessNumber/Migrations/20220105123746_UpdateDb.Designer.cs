@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace GuessNumber.Migrations
 {
     [DbContext(typeof(AuthDbContext))]
-    [Migration("20220104235037_UpdateResponseOldResponse")]
-    partial class UpdateResponseOldResponse
+    [Migration("20220105123746_UpdateDb")]
+    partial class UpdateDb
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -103,10 +103,7 @@ namespace GuessNumber.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
 
-                    b.Property<int>("MatchId")
-                        .HasColumnType("int");
-
-                    b.Property<int?>("MatchResponseId")
+                    b.Property<int>("MatchResponseId")
                         .HasColumnType("int");
 
                     b.Property<DateTime>("MoveTime")
@@ -115,7 +112,7 @@ namespace GuessNumber.Migrations
 
                     b.Property<string>("PlayerId")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<int>("PlayerMove")
                         .HasColumnType("int");
@@ -126,6 +123,8 @@ namespace GuessNumber.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("MatchResponseId");
+
+                    b.HasIndex("PlayerId");
 
                     b.ToTable("GamePlayMove");
                 });
@@ -145,10 +144,7 @@ namespace GuessNumber.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<int?>("MatchResponseId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("MathcResponseId")
+                    b.Property<int>("MatchResponseId")
                         .HasColumnType("int");
 
                     b.Property<DateTime>("Time")
@@ -195,13 +191,10 @@ namespace GuessNumber.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
 
-                    b.Property<int?>("IsOldResponse")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Player1")
+                    b.Property<string>("Player1Id")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("Player2")
+                    b.Property<string>("Player2Id")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("RequestTime")
@@ -354,9 +347,19 @@ namespace GuessNumber.Migrations
                 {
                     b.HasOne("GuessNumber.Models.MatchResponse", "MatchResponse")
                         .WithMany()
-                        .HasForeignKey("MatchResponseId");
+                        .HasForeignKey("MatchResponseId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("GuessNumber.Areas.Identity.Data.GuessNumberUser", "Player")
+                        .WithMany()
+                        .HasForeignKey("PlayerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("MatchResponse");
+
+                    b.Navigation("Player");
                 });
 
             modelBuilder.Entity("GuessNumber.Models.GameResult", b =>
@@ -369,7 +372,9 @@ namespace GuessNumber.Migrations
 
                     b.HasOne("GuessNumber.Models.MatchResponse", "MatchResponse")
                         .WithMany()
-                        .HasForeignKey("MatchResponseId");
+                        .HasForeignKey("MatchResponseId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("MatchResponse");
 

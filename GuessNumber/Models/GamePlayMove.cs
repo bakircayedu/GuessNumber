@@ -11,6 +11,7 @@ namespace GuessNumber.Models
         [Required]
         public int MatchResponseId { get; set; }
         [Required]
+        [StringLength(450)]
         public string? PlayerId { get; set; }
         [Required]
         [Range(100, 999)]

@@ -20,8 +20,7 @@ namespace GuessNumber.Controllers
         }
         public async Task<IActionResult> Index()
         {
-           await GetTopScores();
-            return View();
+            return View(await GetTopScores());
         }
 
         private async Task<List<LeaderBoardViewModel>> GetTopScores()
@@ -30,16 +29,21 @@ namespace GuessNumber.Controllers
             var topUsers = await _context.GameResult
                 .Include(u => u.Player)
                 .GroupBy(g => g.GuessNumberUserId)
-                .Select(a => new {TotalScore = a.Sum(b=> b.GamePoint),Name =a.Select(s=>s.Player.FirstName)})
+                .Select(a => new {TotalScore = a.Sum(b=> b.GamePoint),Name =a.Select(s=>s.Player.FirstName).FirstOrDefault()})
                 .OrderByDescending(a=>a.TotalScore)
                 .AsNoTracking().ToListAsync();
 
-            
 
+            List<LeaderBoardViewModel> vm = new List<LeaderBoardViewModel>();
 
-
-            return null;
+            foreach (var item in topUsers)
+            {
+                LeaderBoardViewModel lm = new LeaderBoardViewModel();
+                lm.PlayerName = item.Name?? "Unknown";
+                lm.TotalPoint = item.TotalScore;
+                vm.Add(lm);
+            }
+            return vm;
         }
-
     }
 }

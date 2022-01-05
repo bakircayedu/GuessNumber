@@ -9,6 +9,7 @@ namespace GuessNumber.Models
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }
         [Required]
+        [StringLength(450)]
         public string? GuessNumberUserId { get; set; }
         [Required]
         public int MatchResponseId { get; set; }

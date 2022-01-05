@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace GuessNumber.Migrations
 {
     [DbContext(typeof(AuthDbContext))]
-    [Migration("20220104230057_AddTimeGameResults")]
-    partial class AddTimeGameResults
+    [Migration("20220105121416_InitialCreate")]
+    partial class InitialCreate
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -103,10 +103,7 @@ namespace GuessNumber.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
 
-                    b.Property<int>("MatchId")
-                        .HasColumnType("int");
-
-                    b.Property<int?>("MatchResponseId")
+                    b.Property<int>("MatchResponseId")
                         .HasColumnType("int");
 
                     b.Property<DateTime>("MoveTime")
@@ -115,7 +112,7 @@ namespace GuessNumber.Migrations
 
                     b.Property<string>("PlayerId")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<int>("PlayerMove")
                         .HasColumnType("int");
@@ -126,6 +123,8 @@ namespace GuessNumber.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("MatchResponseId");
+
+                    b.HasIndex("PlayerId");
 
                     b.ToTable("GamePlayMove");
                 });
@@ -145,10 +144,7 @@ namespace GuessNumber.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<int?>("MatchResponseId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("MathcResponseId")
+                    b.Property<int>("MatchResponseId")
                         .HasColumnType("int");
 
                     b.Property<DateTime>("Time")
@@ -176,13 +172,15 @@ namespace GuessNumber.Migrations
                         .HasColumnType("int");
 
                     b.Property<string>("PlayerId")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<DateTime>("RequestTime")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("datetime2");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("PlayerId");
 
                     b.ToTable("MatchRequest");
                 });
@@ -195,17 +193,21 @@ namespace GuessNumber.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
 
-                    b.Property<string>("Player1")
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<string>("Player1Id")
+                        .HasColumnType("nvarchar(450)");
 
-                    b.Property<string>("Player2")
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<string>("Player2Id")
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<DateTime>("RequestTime")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("datetime2");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("Player1Id");
+
+                    b.HasIndex("Player2Id");
 
                     b.ToTable("MatchResponse");
                 });
@@ -351,9 +353,19 @@ namespace GuessNumber.Migrations
                 {
                     b.HasOne("GuessNumber.Models.MatchResponse", "MatchResponse")
                         .WithMany()
-                        .HasForeignKey("MatchResponseId");
+                        .HasForeignKey("MatchResponseId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("GuessNumber.Areas.Identity.Data.GuessNumberUser", "Player")
+                        .WithMany()
+                        .HasForeignKey("PlayerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("MatchResponse");
+
+                    b.Navigation("Player");
                 });
 
             modelBuilder.Entity("GuessNumber.Models.GameResult", b =>
@@ -366,11 +378,37 @@ namespace GuessNumber.Migrations
 
                     b.HasOne("GuessNumber.Models.MatchResponse", "MatchResponse")
                         .WithMany()
-                        .HasForeignKey("MatchResponseId");
+                        .HasForeignKey("MatchResponseId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("MatchResponse");
 
                     b.Navigation("Player");
+                });
+
+            modelBuilder.Entity("GuessNumber.Models.MatchRequest", b =>
+                {
+                    b.HasOne("GuessNumber.Areas.Identity.Data.GuessNumberUser", "Player")
+                        .WithMany()
+                        .HasForeignKey("PlayerId");
+
+                    b.Navigation("Player");
+                });
+
+            modelBuilder.Entity("GuessNumber.Models.MatchResponse", b =>
+                {
+                    b.HasOne("GuessNumber.Areas.Identity.Data.GuessNumberUser", "Player1")
+                        .WithMany()
+                        .HasForeignKey("Player1Id");
+
+                    b.HasOne("GuessNumber.Areas.Identity.Data.GuessNumberUser", "Player2")
+                        .WithMany()
+                        .HasForeignKey("Player2Id");
+
+                    b.Navigation("Player1");
+
+                    b.Navigation("Player2");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>

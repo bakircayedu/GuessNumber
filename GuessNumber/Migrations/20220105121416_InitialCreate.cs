@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace GuessNumber.Migrations
 {
-    public partial class a : Migration
+    public partial class InitialCreate : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -48,36 +48,6 @@ namespace GuessNumber.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_AspNetUsers", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "MatchRequest",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    PlayerId = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    RequestTime = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    IsPlayerRequestHandled = table.Column<int>(type: "int", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_MatchRequest", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "MatchResponse",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    Player1 = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Player2 = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    RequestTime = table.Column<DateTime>(type: "datetime2", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_MatchResponse", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -186,6 +156,108 @@ namespace GuessNumber.Migrations
                         onDelete: ReferentialAction.Cascade);
                 });
 
+            migrationBuilder.CreateTable(
+                name: "MatchRequest",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    PlayerId = table.Column<string>(type: "nvarchar(450)", nullable: true),
+                    RequestTime = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    IsPlayerRequestHandled = table.Column<int>(type: "int", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_MatchRequest", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_MatchRequest_AspNetUsers_PlayerId",
+                        column: x => x.PlayerId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id");
+                });
+
+            migrationBuilder.CreateTable(
+                name: "MatchResponse",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Player1Id = table.Column<string>(type: "nvarchar(450)", nullable: true),
+                    Player2Id = table.Column<string>(type: "nvarchar(450)", nullable: true),
+                    RequestTime = table.Column<DateTime>(type: "datetime2", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_MatchResponse", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_MatchResponse_AspNetUsers_Player1Id",
+                        column: x => x.Player1Id,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_MatchResponse_AspNetUsers_Player2Id",
+                        column: x => x.Player2Id,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id");
+                });
+
+            migrationBuilder.CreateTable(
+                name: "GamePlayMove",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    MatchResponseId = table.Column<int>(type: "int", nullable: false),
+                    PlayerId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    PlayerMove = table.Column<int>(type: "int", nullable: false),
+                    TurnCount = table.Column<int>(type: "int", nullable: false),
+                    MoveTime = table.Column<DateTime>(type: "datetime2", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_GamePlayMove", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_GamePlayMove_AspNetUsers_PlayerId",
+                        column: x => x.PlayerId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_GamePlayMove_MatchResponse_MatchResponseId",
+                        column: x => x.MatchResponseId,
+                        principalTable: "MatchResponse",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "GameResult",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    GuessNumberUserId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    MatchResponseId = table.Column<int>(type: "int", nullable: false),
+                    GamePoint = table.Column<int>(type: "int", nullable: false),
+                    Time = table.Column<DateTime>(type: "datetime2", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_GameResult", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_GameResult_AspNetUsers_GuessNumberUserId",
+                        column: x => x.GuessNumberUserId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_GameResult_MatchResponse_MatchResponseId",
+                        column: x => x.MatchResponseId,
+                        principalTable: "MatchResponse",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
             migrationBuilder.CreateIndex(
                 name: "IX_AspNetRoleClaims_RoleId",
                 table: "AspNetRoleClaims",
@@ -224,6 +296,41 @@ namespace GuessNumber.Migrations
                 column: "NormalizedUserName",
                 unique: true,
                 filter: "[NormalizedUserName] IS NOT NULL");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_GamePlayMove_MatchResponseId",
+                table: "GamePlayMove",
+                column: "MatchResponseId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_GamePlayMove_PlayerId",
+                table: "GamePlayMove",
+                column: "PlayerId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_GameResult_GuessNumberUserId",
+                table: "GameResult",
+                column: "GuessNumberUserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_GameResult_MatchResponseId",
+                table: "GameResult",
+                column: "MatchResponseId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_MatchRequest_PlayerId",
+                table: "MatchRequest",
+                column: "PlayerId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_MatchResponse_Player1Id",
+                table: "MatchResponse",
+                column: "Player1Id");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_MatchResponse_Player2Id",
+                table: "MatchResponse",
+                column: "Player2Id");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
@@ -244,13 +351,19 @@ namespace GuessNumber.Migrations
                 name: "AspNetUserTokens");
 
             migrationBuilder.DropTable(
+                name: "GamePlayMove");
+
+            migrationBuilder.DropTable(
+                name: "GameResult");
+
+            migrationBuilder.DropTable(
                 name: "MatchRequest");
 
             migrationBuilder.DropTable(
-                name: "MatchResponse");
+                name: "AspNetRoles");
 
             migrationBuilder.DropTable(
-                name: "AspNetRoles");
+                name: "MatchResponse");
 
             migrationBuilder.DropTable(
                 name: "AspNetUsers");

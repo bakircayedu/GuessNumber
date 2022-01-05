@@ -87,6 +87,7 @@ namespace GuessNumber.Controllers
                 MatchResponseViewModel vm = await GetMatchResponseViewModel();
                 gr.MatchResponseId = vm.Id;
                 gr.GuessNumberUserId = userService.GetUserId();
+                gr.Time = DateTime.Now;
 
                 if (gpm.Winner.Equals("Player"))
                 {
@@ -111,7 +112,7 @@ namespace GuessNumber.Controllers
 
             if (dateTime != null)
             {
-                int lastSec = 15-((int)((DateTime.Now.Ticks - dateTime.PlayTime.Ticks) / 1000));
+                int lastSec = 15;//-((int)((DateTime.Now.Ticks - dateTime.PlayTime.Ticks) / 1000));
                 ViewBag.LastSecond = lastSec;
             }
             else
@@ -197,7 +198,7 @@ namespace GuessNumber.Controllers
         {
             string playerId = userService.GetUserId();
             MatchResponseViewModel vm = await GetMatchResponseViewModel();
-            int lastSec = 15 -((int)((DateTime.Now.Ticks - vm.RequestTime.Ticks) / 1000));
+            int lastSec = 15;// -((int)((DateTime.Now.Ticks - vm.RequestTime.Ticks) / 1000));
 
             ViewBag.LastSecond = lastSec;
 

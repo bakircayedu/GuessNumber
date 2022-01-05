@@ -110,6 +110,7 @@ namespace GuessNumber.Migrations
 
                     b.Property<string>("PlayerId")
                         .IsRequired()
+                        .HasMaxLength(450)
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<int>("PlayerMove")
@@ -140,6 +141,7 @@ namespace GuessNumber.Migrations
 
                     b.Property<string>("GuessNumberUserId")
                         .IsRequired()
+                        .HasMaxLength(450)
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<int>("MatchResponseId")
@@ -170,6 +172,7 @@ namespace GuessNumber.Migrations
                         .HasColumnType("int");
 
                     b.Property<string>("PlayerId")
+                        .HasMaxLength(450)
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<DateTime>("RequestTime")
@@ -177,8 +180,6 @@ namespace GuessNumber.Migrations
                         .HasColumnType("datetime2");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("PlayerId");
 
                     b.ToTable("MatchRequest");
                 });
@@ -192,9 +193,11 @@ namespace GuessNumber.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
 
                     b.Property<string>("Player1Id")
+                        .HasMaxLength(450)
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("Player2Id")
+                        .HasMaxLength(450)
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<DateTime>("RequestTime")
@@ -202,10 +205,6 @@ namespace GuessNumber.Migrations
                         .HasColumnType("datetime2");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("Player1Id");
-
-                    b.HasIndex("Player2Id");
 
                     b.ToTable("MatchResponse");
                 });
@@ -383,30 +382,6 @@ namespace GuessNumber.Migrations
                     b.Navigation("MatchResponse");
 
                     b.Navigation("Player");
-                });
-
-            modelBuilder.Entity("GuessNumber.Models.MatchRequest", b =>
-                {
-                    b.HasOne("GuessNumber.Areas.Identity.Data.GuessNumberUser", "Player")
-                        .WithMany()
-                        .HasForeignKey("PlayerId");
-
-                    b.Navigation("Player");
-                });
-
-            modelBuilder.Entity("GuessNumber.Models.MatchResponse", b =>
-                {
-                    b.HasOne("GuessNumber.Areas.Identity.Data.GuessNumberUser", "Player1")
-                        .WithMany()
-                        .HasForeignKey("Player1Id");
-
-                    b.HasOne("GuessNumber.Areas.Identity.Data.GuessNumberUser", "Player2")
-                        .WithMany()
-                        .HasForeignKey("Player2Id");
-
-                    b.Navigation("Player1");
-
-                    b.Navigation("Player2");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>

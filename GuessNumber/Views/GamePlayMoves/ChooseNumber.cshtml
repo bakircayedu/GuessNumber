@@ -55,6 +55,8 @@
 
          var timer =parseInt(@ViewBag.LastSecond / 1000) ;
 	     console.log('timer =>',timer);
+         if(timer<5)
+            timer= 15;
 	     if(timer>15)
          {
 		    timer = 15;
